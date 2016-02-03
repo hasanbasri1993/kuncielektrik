@@ -6,6 +6,7 @@ LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 
 #include <avr/sleep.h>
 #include <avr/power.h>
+
 #define hapus 10 //jumper ke VCC
 int solenoid = 11;
 boolean ngawur = false;
@@ -35,13 +36,12 @@ int countsalah = 0;
 /*
 const byte ROWS = 4;
 const byte COLS = 4;
-
 char keys[ROWS][COLS] = {
-	{'1','2','3'},
-	{'0','5','6'},
-	{'7','8','9'},
-	{'*','0','#'}
-	};
+  {'1','2','3'},
+  {'0','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
+  };
 byte rowPins[ROWS] = {10, 9, 8, 7};
 byte colPins[COLS] = {6, 5, 4};
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
@@ -76,8 +76,6 @@ void setup()
 {
   lcd.begin(16, 2);
   /*finger.begin(57600);
-
-
   if (finger.verifyPassword()) {
     lcd.clear();
     lcd.setCursor(0,0);
@@ -294,10 +292,7 @@ void goToSleep ()
   PCIFR  |= bit (PCIF0) | bit (PCIF1) | bit (PCIF2);   // clear any outstanding interrupts
   PCICR  |= bit (PCIE0) | bit (PCIE1) | bit (PCIE2);   // enable pin change interrupts
    
-  // turn off brown-out enable in software
-  MCUCR = bit (BODS) | bit (BODSE);
-  MCUCR = bit (BODS); 
-  sleep_cpu ();  
+   sleep_cpu ();  
  
   // cancel sleep as a precaution
   sleep_disable();
