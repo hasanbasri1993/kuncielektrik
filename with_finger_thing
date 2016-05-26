@@ -1,0 +1,89 @@
+#include "ThingSpeak.h"
+#include <SPI.h>
+#include <Ethernet.h>
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+EthernetClient client;
+
+
+#include <Adafruit_Fingerprint.h>
+#include <SoftwareSerial.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
+#include <Wire.h>
+
+int buzzer 8;
+#define VOLTAGE_MAX 5.0
+#define VOLTAGE_MAXCOUNTS 1023.0
+long randNumber;
+
+unsigned long myChannelNumber = 119236;
+const char * myWriteAPIKey = "BHLAJ5G4W1LE2TOY";
+
+
+//FINGER SETTINGS
+int getFingerprintIDez();
+uint8_t id;
+SoftwareSerial mySerial(2, 3);
+Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
+
+
+void setup() {
+  Ethernet.begin(mac);
+  ThingSpeak.begin(client);
+  lcd.begin(16, 2);
+  lcd.print("Finger cek...");
+  finger.begin(57600);
+  if (finger.verifyPassword()) {
+    lcd.setCursor(0, 1);
+    lcd.print("Finger wait...");
+  } else {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Did not find ");
+    lcd.setCursor(0, 1);
+    lcd.print("finger sensor :(");
+    while (1);
+  }
+  pinMode(buzzer, OUTPUT);
+  lcd.noBacklight();
+}
+
+void loop() {
+
+  getFingerprintIDez();
+  delay(50);            //don't ned to run this at full speed.
+}
+
+
+void rekap() {
+
+  int idfinger           = finger.fingerID;
+  
+  Serial.println("startedRequest ok");
+  Serial.print("Found ID #"); Serial.print(finger.fingerID);
+  Serial.print(" with confidence of "); Serial.println(finger.confidence);
+  lcd.clear();
+  lcd.backlight();
+  lcd.setCursor(0, 0);
+  lcd.print("Found ID #");
+  lcd.print(finger.fingerID);
+  ThingSpeak.writeField(myChannelNumber, 1, idfinger, myWriteAPIKey);
+}
+
+// returns -1 if failed, otherwise returns ID #
+int getFingerprintIDez() {
+  uint8_t p = finger.getImage();
+  if (p != FINGERPRINT_OK)  return -1;
+
+  p = finger.image2Tz();
+  if (p != FINGERPRINT_OK)  return -1;
+
+  p = finger.fingerFastSearch();
+  if (p != FINGERPRINT_OK)  return -1;
+
+  // found a match!
+
+  rekap();
+  lcd.noBacklight();
+  return finger.fingerID;
+}
