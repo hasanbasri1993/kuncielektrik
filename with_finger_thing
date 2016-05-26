@@ -11,7 +11,7 @@ EthernetClient client;
 LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
 #include <Wire.h>
 
-int buzzer 8;
+int kunci = 7;
 #define VOLTAGE_MAX 5.0
 #define VOLTAGE_MAXCOUNTS 1023.0
 long randNumber;
@@ -35,7 +35,7 @@ void setup() {
   finger.begin(57600);
   if (finger.verifyPassword()) {
     lcd.setCursor(0, 1);
-    lcd.print("Finger wait...");
+    lcd.print("Finger Siap!!!");
   } else {
     lcd.clear();
     lcd.setCursor(0, 0);
@@ -44,7 +44,9 @@ void setup() {
     lcd.print("finger sensor :(");
     while (1);
   }
-  pinMode(buzzer, OUTPUT);
+  delay(2000);
+  pinMode(kunci, OUTPUT);
+  digitalWrite(kunci, LOW);
   lcd.noBacklight();
 }
 
@@ -54,11 +56,9 @@ void loop() {
   delay(50);            //don't ned to run this at full speed.
 }
 
-
 void rekap() {
 
   int idfinger           = finger.fingerID;
-  
   Serial.println("startedRequest ok");
   Serial.print("Found ID #"); Serial.print(finger.fingerID);
   Serial.print(" with confidence of "); Serial.println(finger.confidence);
@@ -67,22 +67,48 @@ void rekap() {
   lcd.setCursor(0, 0);
   lcd.print("Found ID #");
   lcd.print(finger.fingerID);
+  lcd.setCursor(0, 1);
+  lcd.print("PINTU KEBUKA");
+  tone(8, 1500, 100);
+  delay(100);
+  tone(8, 1800, 100);
+  delay(100);
+  tone(8, 2000, 100);
+  delay(100);
+  tone(8, 3000, 500);
+  delay(500);
+  tone(8, 1800, 100);
+  delay(100);
+  tone(8, 1500, 100);
+  delay(100);
+  digitalWrite(kunci, HIGH);
+  for (int aha = 4; aha >= 0; aha--)
+  {
+    lcd.setCursor(14, 1);
+    lcd.print(aha);
+    delay(1000);
+  }
+  digitalWrite(kunci, LOW);
+
   ThingSpeak.writeField(myChannelNumber, 1, idfinger, myWriteAPIKey);
+  tone(8, 1500, 100);
+  delay(100);
+  tone(8, 1500, 100);
+  delay(100);
+  tone(8, 1500, 100);
+  delay(100);
+  
 }
 
-// returns -1 if failed, otherwise returns ID #
 int getFingerprintIDez() {
   uint8_t p = finger.getImage();
   if (p != FINGERPRINT_OK)  return -1;
-
   p = finger.image2Tz();
   if (p != FINGERPRINT_OK)  return -1;
-
   p = finger.fingerFastSearch();
   if (p != FINGERPRINT_OK)  return -1;
 
-  // found a match!
-
+  // Ketemu!
   rekap();
   lcd.noBacklight();
   return finger.fingerID;
