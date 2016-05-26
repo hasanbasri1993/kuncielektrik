@@ -1,3 +1,4 @@
+#include <Sleep_n0m1.h>
 #include "ThingSpeak.h"
 #include <SPI.h>
 #include <Ethernet.h>
@@ -48,6 +49,8 @@ void setup() {
   pinMode(kunci, OUTPUT);
   digitalWrite(kunci, LOW);
   lcd.noBacklight();
+
+  void pwrDownMode();
 }
 
 void loop() {
@@ -107,6 +110,7 @@ int getFingerprintIDez() {
   if (p != FINGERPRINT_OK)  return -1;
   p = finger.fingerFastSearch();
   if (p != FINGERPRINT_OK)  return -1;
+
 
   // Ketemu!
   rekap();
